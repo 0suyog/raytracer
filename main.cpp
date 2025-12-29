@@ -7,8 +7,8 @@ int main() {
   std::cout << "P3\n" << image_width << " " << image_height << "\n255\n";
   for (int j = 0; j <= image_height; j++) {
     for (int i = 0; i <= image_width; i++) {
-      auto r = i / image_width;
-      auto g = i / image_height;
+      auto r = double(i) / image_width;
+      auto g = double(j) / image_height;
       auto b = 0;
 
       int scaledr = int(r * 255.999);
