@@ -7,7 +7,7 @@ int main() {
   std::cout << "P3\n" << image_width << " " << image_height << "\n255\n";
   for (int j = 0; j < image_height; j++) {
     for (int i = 0; i < image_width; i++) {
-      std::cout << i << " " << 0 << " " << 0 << " ";
+      std::cout << i << " " << j << " " << (i + j) / 2 << " ";
     }
     std::cout << "\n";
   }
