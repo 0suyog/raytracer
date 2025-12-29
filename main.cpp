@@ -12,8 +12,8 @@ int main() {
       auto b = 0;
 
       int scaledr = int(r * 255);
-      int scaledb = int(g * 255);
-      int scaledg = int(b * 255);
+      int scaledg = int(g * 255);
+      int scaledb = int(b * 255);
 
       std::cout << scaledr << " " << scaledg << " " << scaledb << " ";
     }
