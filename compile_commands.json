@@ -1,0 +1,8 @@
+[
+{
+  "directory": "/hardDrive/graphicsprogramming/yt/raytracer",
+  "command": "/usr/bin/c++    -o CMakeFiles/raytracer.dir/main.cpp.o -c /hardDrive/graphicsprogramming/yt/raytracer/main.cpp",
+  "file": "/hardDrive/graphicsprogramming/yt/raytracer/main.cpp",
+  "output": "CMakeFiles/raytracer.dir/main.cpp.o"
+}
+]

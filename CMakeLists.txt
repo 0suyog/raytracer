@@ -12,6 +12,7 @@ add_executable(
   ${HEADER_FILES}
 )
 
+
 add_custom_target(
   run
   COMMAND $<TARGET_FILE:raytracer> > pic.ppm
@@ -19,6 +20,7 @@ add_custom_target(
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   COMMENT "Running Ray Tracer"
 )
+
 
 add_custom_target(
   view
