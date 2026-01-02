@@ -1,26 +1,18 @@
 #include "color.h"
+#include "hittable.h"
 #include "ray.h"
+#include "sphere.h"
 #include "vec3.h"
 #include <iostream>
 #include <ostream>
 
-bool hit_sphere(const ray &r) {
-  double radius = 7;
-  point3 center(0, 0, -10);
-  auto a = 1;
-  auto co = center - r.origin();
-  auto d = r.direction();
-  auto h = dot(d, co);
-  auto c = (dot(co, co)) - (radius * radius);
-
-  auto discriminant = (h * h) - c;
-
-  return discriminant > 0;
-}
-
-color ray_color(const ray &r) {
-  if (hit_sphere(r)) {
-    return color(1, 0, 0);
+color ray_color(const ray &r, hittable *world[2]) {
+  auto h_rec = hit_record();
+  for (int i = 0; i < 1; i++) {
+    auto thing = world[i];
+    if (thing->hit(r, h_rec)) {
+      return color(1, 0, 0);
+    }
   }
   vec3 direction = r.direction();
   auto a = 0.5 * (direction.y() + 1.0);
@@ -54,6 +46,12 @@ int main() {
                             (viewport_u / 2) - (viewport_v / 2);
   point3 pixel00_loc =
       viewport_upperleft + 0.5 * (pixel_delta_u + pixel_delta_v);
+
+  hittable *world[]{
+      new sphere(1, *new point3(0, 0, -5)),
+      // new sphere(1, *new point3(0, 0.5, -5))
+  };
+
   // P3 header width height and max color
   std::cout << "P3\n" << image_width << " " << image_height << "\n255\n";
   for (int j = 0; j < image_height; j++) {
@@ -63,7 +61,8 @@ int main() {
           pixel00_loc + (i * pixel_delta_u) + (j * pixel_delta_v);
       auto ray_direction = unit_vector(pixel_location - camera_center);
       auto r = ray(camera_center, ray_direction);
-      write_color(std::cout, ray_color(r));
+      write_color(std::cout, ray_color(r, world));
+      write_color(std::cout, color(0, 0, 0));
     }
     std::cout << "\n";
   }
