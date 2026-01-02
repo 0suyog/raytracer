@@ -19,7 +19,7 @@ public:
 
     auto discriminant = (h * h) - (a * c);
 
-    if (discriminant < 0) {
+    if (discriminant <= 0) {
       return false;
     }
 
