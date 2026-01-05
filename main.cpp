@@ -11,6 +11,9 @@ int main() {
   world.add(std::make_shared<sphere>(0.5, point3(0, 0, -1)));
   world.add(std::make_shared<sphere>(100, point3(0, -100.5, -1)));
 
+  c.aspect_ratio = 16.0 / 9;
+  c.image_width = 400;
   c.no_of_pixel_samples = 100;
+  c.max_bounces = 100;
   c.render(world);
 }

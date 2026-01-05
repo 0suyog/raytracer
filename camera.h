@@ -40,7 +40,8 @@ private:
     }
     vec3 direction = r.direction();
     auto a = 0.5 * (direction.y() + 1.0);
-    return (1.0 - a) * color(1.0, 1.0, 1.0) + a * color(0, 0, 1.0);
+    // return (1.0 - a) * color(1.0, 1.0, 1.0) + a * color(0, 0, 1.0);
+    return (1.0 - a) * color(1.0, 1.0, 1.0) + a * color(0.5, 0.7, 1.0);
   }
 
   ray get_ray(int i, int j) const {
