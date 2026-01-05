@@ -1,4 +1,5 @@
 #pragma once
+#include "utils.h"
 #include <cmath>
 #include <ostream>
 class vec3 {
@@ -75,6 +76,18 @@ inline vec3 operator+(const vec3 &v, const vec3 &u) {
   return vec3(v.x() + u.x(), v.y() + u.y(), v.z() + u.z());
 }
 
+inline vec3 operator+(const vec3 &v, double n) {
+  return vec3(v.x() + n, v.y() + n, v.z() + n);
+}
+
+inline vec3 operator+(double n, const vec3 &v) { return v + n; }
+
+inline vec3 operator-(const vec3 &v, double n) {
+  return vec3(v.x() - n, v.y() - n, v.z() - n);
+}
+
+inline vec3 operator-(double n, const vec3 &v) { return v - n; }
+
 inline vec3 operator-(const vec3 &v, const vec3 &u) {
   return vec3(v.x() - u.x(), v.y() - u.y(), v.z() - u.z());
 }
@@ -99,3 +112,23 @@ inline vec3 cross(const vec3 &u, const vec3 &v) {
 }
 
 inline vec3 unit_vector(const vec3 &v) { return v / v.length(); }
+
+inline vec3 random_vector() {
+  return vec3(random_double(-0.5, 0.5), random_double(-0.5, 0.5),
+              random_double(-0.5, 0.5));
+}
+
+inline vec3 random_unit_vector() {
+  while (true) {
+    auto vec = random_vector();
+    auto len_sq = vec.length_squared();
+    if (1e-160 < len_sq && len_sq <= 1) {
+      return unit_vector(vec);
+    }
+  }
+}
+
+inline vec3 random_on_hemisphere(const vec3 normal) {
+  auto vec = random_unit_vector();
+  return dot(vec, normal) > 0 ? vec : -vec;
+}

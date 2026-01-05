@@ -1,5 +1,6 @@
 #pragma once
 #include "hittable.h"
+#include "interval.h"
 #include "vec3.h"
 #include <cmath>
 class sphere : public hittable {
@@ -8,8 +9,11 @@ private:
   point3 center = point3(0, 0, -10);
 
 public:
-  sphere(double radius, point3 &center) : radius(radius), center(center) {}
-  bool hit(const ray &r, hit_record &hit_rec) const override {
+  sphere() = default;
+  sphere(double radius, const point3 &center)
+      : radius(radius), center(center) {}
+  bool hit(const ray &r, hit_record &hit_rec,
+           const interval &ray_int) const override {
 
     auto a = 1;
     auto co = center - r.origin();
@@ -23,12 +27,21 @@ public:
       return false;
     }
 
-    auto sqrt_disc = sqrt(discriminant);
     // currently checking for only nearest hit
-    auto hit_point = (h - sqrt_disc) / a;
-    hit_rec.p = hit_point;
-    hit_rec.t = discriminant;
+    auto sqrt_disc = sqrt(discriminant);
+    auto t = (h - sqrt_disc) / a;
+    if (!ray_int.surrounds(t)) {
+      t = (h + sqrt_disc) / a;
+      if (!ray_int.surrounds(t)) {
+        return false;
+      }
+    }
+    hit_rec.p = r.at(t);
+    hit_rec.t = t;
+    hit_rec.set_normal_face(r, normal(hit_rec.p));
 
     return true;
   }
+
+  vec3 normal(const point3 p) const { return unit_vector(p - center); }
 };

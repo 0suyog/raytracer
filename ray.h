@@ -10,7 +10,7 @@ public:
   ray(point3 origin, vec3 direction) : orig(origin), dir(direction) {}
   ~ray() = default;
 
-  vec3 at(double point) { return orig + (dir * point); }
+  const vec3 at(double point) const { return orig + (dir * point); }
   const vec3 &direction() const { return dir; }
   const point3 &origin() const { return orig; }
 };

@@ -1,69 +1,16 @@
-#include "color.h"
-#include "hittable.h"
-#include "ray.h"
+#include "camera.h"
+#include "hittable_list.h"
 #include "sphere.h"
 #include "vec3.h"
-#include <iostream>
-#include <iterator>
-#include <ostream>
-
-color ray_color(const ray &r, hittable *world[], int count) {
-  auto h_rec = hit_record();
-  for (int i = 0; i < count; i++) {
-    auto thing = world[i];
-    if (thing->hit(r, h_rec)) {
-      return color(1, 0, 0);
-    }
-  }
-  vec3 direction = r.direction();
-  auto a = 0.5 * (direction.y() + 1.0);
-  return (1.0 - a) * color(1.0, 1.0, 1.0) + a * color(0, 0, 1.0);
-}
+#include <memory>
 
 int main() {
-  // defining image height and weight
-  auto aspect_ratio = double(16) / 9;
-  int image_width = 720;
-  int image_height = int(image_width / aspect_ratio);
-  image_height = (image_height < 1 ? 1 : image_height);
+  camera c;
+  hittable_list world;
 
-  double focal_length = 1;
-  point3 camera_center = point3(0, 0, 0);
-  auto viewport_height = 2.0;
-  auto viewport_width = viewport_height * (double(image_width) / image_height);
+  world.add(std::make_shared<sphere>(0.5, point3(0, 0, -1)));
+  world.add(std::make_shared<sphere>(100, point3(0, -100.5, -1)));
 
-  // vec3 viewport_u_dir = vec3(1, 0, 0);
-  // vec3 viewport_v_dir = vec3(0, -1, 0);
-  // vec3 viewport_u = viewport_u_dir * viewport_width;
-  // vec3 viewport_v = viewport_v_dir * viewport_height;
-  auto viewport_u = vec3(viewport_width, 0, 0);
-  vec3 viewport_v(0, -viewport_height, 0);
-
-  vec3 pixel_delta_u = viewport_u / image_width;
-  vec3 pixel_delta_v = viewport_v / image_height;
-  // std::cerr << "\n" << pixel_delta_u << "\n" << pixel_delta_v << "\n";
-
-  auto viewport_upperleft = camera_center - vec3(0, 0, focal_length) -
-                            (viewport_u / 2) - (viewport_v / 2);
-  point3 pixel00_loc =
-      viewport_upperleft + 0.5 * (pixel_delta_u + pixel_delta_v);
-
-  hittable *world[]{new sphere(1, *new point3(0, 0, -5)),
-                    new sphere(1, *new point3(0, 0.5, -5))};
-  auto length = std::size(world);
-
-  // P3 header width height and max color
-  std::cout << "P3\n" << image_width << " " << image_height << "\n255\n";
-  for (int j = 0; j < image_height; j++) {
-    std::clog << "\rScanlines remaining:" << image_height - j << std::flush;
-    for (int i = 0; i < image_width; i++) {
-      auto pixel_location =
-          pixel00_loc + (i * pixel_delta_u) + (j * pixel_delta_v);
-      auto ray_direction = unit_vector(pixel_location - camera_center);
-      auto r = ray(camera_center, ray_direction);
-      write_color(std::cout, ray_color(r, world, length));
-    }
-    std::cout << "\n";
-  }
-  std::clog << "\rDone.                        \n" << std::flush;
+  c.no_of_pixel_samples = 100;
+  c.render(world);
 }
