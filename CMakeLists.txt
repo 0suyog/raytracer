@@ -24,7 +24,7 @@ add_custom_target(
 
 add_custom_target(
   view
-  COMMAND feh --force-aliasing pic.ppm
+  COMMAND feh pic.ppm
   DEPENDS run
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   COMMENT "Opening Image"

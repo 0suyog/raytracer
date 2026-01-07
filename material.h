@@ -41,11 +41,12 @@ private:
   double fuzz;
 
 public:
-  metal(color a) : albedo(a) {}
+  metal(color a, double fuzz) : albedo(a), fuzz(fuzz) {}
   bool scatter(const ray &r, const hit_record &h_rec, color &attenuation,
                vec3 &scatter_direction) const override {
     attenuation = albedo;
-    scatter_direction = reflect(r.direction(), h_rec.normal);
+    scatter_direction =
+        reflect(r.direction(), h_rec.normal) + (random_unit_vector() * fuzz);
     return true;
   }
 };

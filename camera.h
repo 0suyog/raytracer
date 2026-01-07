@@ -6,6 +6,7 @@
 #include "material.h"
 #include "utils.h"
 #include "vec3.h"
+#include <cmath>
 #include <iostream>
 
 class camera {
@@ -14,10 +15,12 @@ private:
   double viewport_width;
   vec3 viewport_u, viewport_v, pixel_delta_u, pixel_delta_v, viewport_upperleft;
   point3 pixel00_loc;
+  double viewport_height;
 
   void initialize() {
     image_height = image_width / aspect_ratio;
     image_height = image_height < 1 ? 1 : image_height;
+    viewport_height = 2 * tan(degrees_to_radians(vfov / 2)) * -focal_length;
     viewport_width = viewport_height * (double(image_width) / image_height);
     viewport_u = vec3(viewport_width, 0, 0);
     viewport_v = vec3(0, -viewport_height, 0);
@@ -69,9 +72,10 @@ public:
   int image_width = 720;
   double focal_length = 1;
   point3 camera_center = point3(0, 0, 0);
-  double viewport_height = 2.0;
   int max_bounces = 10;
   int samples_per_pixel = 10;
+  double vfov = 80;
+  vec3 vup = vec3(0, 1, 0);
 
   void render(const hittable_list &world) {
     initialize();
