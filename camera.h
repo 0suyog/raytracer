@@ -3,9 +3,11 @@
 #include "color.h"
 #include "hittable.h"
 #include "hittable_list.h"
+#include "material.h"
 #include "utils.h"
 #include "vec3.h"
-#include <random>
+#include <iostream>
+
 class camera {
 private:
   int image_height;
@@ -34,11 +36,15 @@ private:
     auto h_rec = hit_record();
     interval ray_int(0.001, infinity);
     if (world.hit(r, h_rec, ray_int)) {
-      auto direction = random_on_hemisphere(h_rec.normal);
-      auto r = ray(h_rec.p, direction);
-      return 0.5 * (ray_color(r, world, bounces - 1));
+      color attenuation;
+      vec3 scattered_direction;
+      if (h_rec.mat->scatter(r, h_rec, attenuation, scattered_direction)) {
+        auto r = ray(h_rec.p, scattered_direction);
+        return attenuation * ray_color(r, world, bounces - 1);
+      }
+      return color(0, 0, 0);
     }
-    vec3 direction = r.direction();
+    vec3 direction = unit_vector(r.direction());
     auto a = 0.5 * (direction.y() + 1.0);
     // return (1.0 - a) * color(1.0, 1.0, 1.0) + a * color(0, 0, 1.0);
     return (1.0 - a) * color(1.0, 1.0, 1.0) + a * color(0.5, 0.7, 1.0);
@@ -49,13 +55,13 @@ private:
     auto pixel_location = pixel00_loc + ((i + offset.x()) * pixel_delta_u) +
                           ((j + offset.y()) * pixel_delta_v);
     // pixel00_loc + (i * pixel_delta_u) + (j * pixel_delta_v) + offset;
-    auto ray_direction = unit_vector(pixel_location - camera_center);
+    auto ray_direction = pixel_location - camera_center;
     auto r = ray(camera_center, ray_direction);
     return r;
   }
 
   vec3 sample_offset() const {
-    return vec3(random_double(-0.5, 0.5), random_double(-0.5, 0.5), 0);
+    return vec3(random_double() - 0.5, random_double() - 0.5, 0);
   }
 
 public:
@@ -65,7 +71,7 @@ public:
   point3 camera_center = point3(0, 0, 0);
   double viewport_height = 2.0;
   int max_bounces = 10;
-  int no_of_pixel_samples = 10;
+  int samples_per_pixel = 10;
 
   void render(const hittable_list &world) {
     initialize();
@@ -74,11 +80,11 @@ public:
       std::clog << "\rScanlines remaining:" << image_height - j << std::flush;
       for (int i = 0; i < image_width; i++) {
         color c(0, 0, 0);
-        for (int s = 0; s < no_of_pixel_samples; s++) {
+        for (int s = 0; s < samples_per_pixel; s++) {
           auto r = get_ray(i, j);
           c += ray_color(r, world, max_bounces);
         }
-        auto avg_clr = c / no_of_pixel_samples;
+        auto avg_clr = c / samples_per_pixel;
         write_color(std::cout, avg_clr);
       }
       std::cout << "\n";

@@ -1,21 +1,24 @@
 #pragma once
 #include "hittable.h"
 #include "interval.h"
+#include "material.h"
 #include "vec3.h"
 #include <cmath>
+#include <memory>
 class sphere : public hittable {
 private:
   double radius = 7;
   point3 center = point3(0, 0, -10);
+  std::shared_ptr<material> mat;
 
 public:
   sphere() = default;
-  sphere(double radius, const point3 &center)
-      : radius(radius), center(center) {}
+  sphere(const point3 &center, double radius, std::shared_ptr<material> mat)
+      : radius(radius), center(center), mat(mat) {}
   bool hit(const ray &r, hit_record &hit_rec,
            const interval &ray_int) const override {
 
-    auto a = 1;
+    auto a = dot(r.direction(), r.direction());
     auto co = center - r.origin();
     auto d = r.direction();
     auto h = dot(d, co);
@@ -38,10 +41,11 @@ public:
     }
     hit_rec.p = r.at(t);
     hit_rec.t = t;
-    hit_rec.set_normal_face(r, normal(hit_rec.p));
+    hit_rec.set_front_normal(r, normal(hit_rec.p));
+    hit_rec.mat = mat;
 
     return true;
   }
 
-  vec3 normal(const point3 p) const { return unit_vector(p - center); }
+  vec3 normal(const point3 p) const { return (p - center) / radius; }
 };

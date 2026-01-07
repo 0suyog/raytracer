@@ -10,7 +10,7 @@ public:
   interval(double min, double max) : min(min), max(max) {};
   bool contains(double value) const { return (min <= value && value <= max); }
   bool surrounds(double value) const { return (min < value && value < max); }
-  bool clamp(double value) const {
+  double clamp(double value) const {
     if (value < min) {
       return min;
     }

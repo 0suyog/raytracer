@@ -2,7 +2,6 @@
 
 #include "hittable.h"
 #include "interval.h"
-#include <iostream>
 #include <memory>
 #include <vector>
 class hittable_list : public hittable {

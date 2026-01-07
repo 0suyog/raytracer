@@ -100,6 +100,10 @@ inline vec3 operator*(const vec3 &v, double x) { return x * v; }
 
 inline vec3 operator/(const vec3 &v, double x) { return v * (1.0 / x); }
 
+inline vec3 operator*(const vec3 &v, const vec3 &u) {
+  return vec3(v.x() * u.x(), v.y() * u.y(), v.z() * u.z());
+}
+
 inline double dot(const vec3 &v1, const vec3 &v2) {
   auto d = v1[0] * v2[0] + v1[1] * v2[1] + v1[2] * v2[2];
   return d;
@@ -127,7 +131,20 @@ inline vec3 random_unit_vector() {
   }
 }
 
-inline vec3 random_on_hemisphere(const vec3 normal) {
+inline vec3 random_on_hemisphere(const vec3 &normal) {
   auto vec = random_unit_vector();
   return dot(vec, normal) > 0 ? vec : -vec;
+}
+
+inline bool near_zero(const vec3 &vec) {
+  auto lower_bound = 1e-8;
+
+  if (vec.x() < lower_bound && vec.y() < lower_bound && vec.z() < lower_bound) {
+    return true;
+  }
+  return false;
+}
+
+inline vec3 reflect(const vec3 &dir, const vec3 &normal) {
+  return dir - 2 * dot(dir, normal) * normal;
 }
