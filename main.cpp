@@ -11,6 +11,6 @@ int main() {
   world.add(std::make_shared<sphere>(0.5, point3(0, 0, -1)));
   world.add(std::make_shared<sphere>(100, point3(0, -100.5, -1)));
 
-  c.no_of_pixel_samples = 100;
+  c.no_of_pixel_samples = 1;
   c.render(world);
 }

@@ -32,7 +32,7 @@ private:
       return color(0, 0, 0);
     }
     auto h_rec = hit_record();
-    interval ray_int(0.001, infinity);
+    interval ray_int(0, infinity);
     if (world.hit(r, h_rec, ray_int)) {
       auto direction = random_on_hemisphere(h_rec.normal);
       auto r = ray(h_rec.p, direction);
@@ -45,9 +45,10 @@ private:
 
   ray get_ray(int i, int j) const {
     auto offset = sample_offset();
-    auto pixel_location = pixel00_loc + ((i + offset.x()) * pixel_delta_u) +
-                          ((j + offset.y()) * pixel_delta_v);
-    // pixel00_loc + (i * pixel_delta_u) + (j * pixel_delta_v) + offset;
+    auto pixel_location =
+        // pixel00_loc + ((i + offset.x()) * pixel_delta_u) +
+        //                         ((j + offset.y()) * pixel_delta_v);
+        pixel00_loc + (i * pixel_delta_u) + (j * pixel_delta_v);
     auto ray_direction = unit_vector(pixel_location - camera_center);
     auto r = ray(camera_center, ray_direction);
     return r;
