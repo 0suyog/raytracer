@@ -148,3 +148,11 @@ inline bool near_zero(const vec3 &vec) {
 inline vec3 reflect(const vec3 &dir, const vec3 &normal) {
   return dir - 2 * dot(dir, normal) * normal;
 }
+
+inline vec3 refract(const vec3 &uv, const vec3 &n,
+                    double relative_refractive_index) {
+  auto cos_theta = std::fmin(dot(-uv, n), 1);
+  auto Rper = relative_refractive_index * (uv + cos_theta * n);
+  auto Rpar = -std::sqrt(std::fabs(1 - Rper.length_squared())) * n;
+  return Rper + Rpar;
+}

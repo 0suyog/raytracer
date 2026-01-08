@@ -13,26 +13,38 @@ class camera {
 private:
   int image_height;
   double viewport_width;
-  vec3 viewport_u, viewport_v, pixel_delta_u, pixel_delta_v, viewport_upperleft;
+  vec3 viewport_u, viewport_v, viewport_w, pixel_delta_u, pixel_delta_v,
+      viewport_upperleft;
   point3 pixel00_loc;
   double viewport_height;
+  point3 camera_center;
+  vec3 u, v, w;
 
   void initialize() {
     image_height = image_width / aspect_ratio;
     image_height = image_height < 1 ? 1 : image_height;
     viewport_height = 2 * tan(degrees_to_radians(vfov / 2)) * -focal_length;
     viewport_width = viewport_height * (double(image_width) / image_height);
-    viewport_u = vec3(viewport_width, 0, 0);
-    viewport_v = vec3(0, -viewport_height, 0);
+
+    camera_center = lookfrom;
+
+    w = unit_vector(lookfrom - lookat);
+    u = unit_vector(cross(vup, w));
+    v = cross(w, u);
+
+    viewport_u = u * viewport_width;
+    viewport_v = v * viewport_height;
+    viewport_w = w * focal_length;
 
     pixel_delta_u = viewport_u / image_width;
     pixel_delta_v = viewport_v / image_height;
-    viewport_upperleft = camera_center - vec3(0, 0, focal_length) -
-                         (viewport_u / 2) - (viewport_v / 2);
+    viewport_upperleft =
+        camera_center - viewport_w - (viewport_u / 2) - (viewport_v / 2);
     pixel00_loc = viewport_upperleft + 0.5 * (pixel_delta_u + pixel_delta_v);
   }
 
   color ray_color(const ray &r, hittable_list world, int bounces) {
+    // std::cerr << "\ndone\n";
     if (bounces <= 0) {
       return color(0, 0, 0);
     }
@@ -71,11 +83,14 @@ public:
   double aspect_ratio = double(16) / 9;
   int image_width = 720;
   double focal_length = 1;
-  point3 camera_center = point3(0, 0, 0);
-  int max_bounces = 10;
-  int samples_per_pixel = 10;
+  int max_bounces = 100;
+  int samples_per_pixel = 100;
+
   double vfov = 80;
+
   vec3 vup = vec3(0, 1, 0);
+  point3 lookfrom = point3(0, 0, 0);
+  point3 lookat = point3(0, 0, -1);
 
   void render(const hittable_list &world) {
     initialize();
