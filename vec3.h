@@ -1,6 +1,7 @@
 #pragma once
 #include "utils.h"
 #include <cmath>
+#include <iostream>
 #include <ostream>
 class vec3 {
 
@@ -134,6 +135,17 @@ inline vec3 random_unit_vector() {
 inline vec3 random_on_hemisphere(const vec3 &normal) {
   auto vec = random_unit_vector();
   return dot(vec, normal) > 0 ? vec : -vec;
+}
+
+inline vec3 random_in_unit_disk() {
+  while (true) {
+    // std::clog << "\n start \n";
+    auto vec = vec3(random_double(-1, 1), random_double(-1, 1), 0);
+    if (vec.length_squared() <= 1) {
+      // std::clog << "\n end \n";
+      return vec;
+    }
+  }
 }
 
 inline bool near_zero(const vec3 &vec) {

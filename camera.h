@@ -14,16 +14,17 @@ private:
   int image_height;
   double viewport_width;
   vec3 viewport_u, viewport_v, viewport_w, pixel_delta_u, pixel_delta_v,
-      viewport_upperleft;
+      viewport_upperleft, defocus_u, defocus_v;
   point3 pixel00_loc;
   double viewport_height;
   point3 camera_center;
   vec3 u, v, w;
+  double defocus_radius;
 
   void initialize() {
     image_height = image_width / aspect_ratio;
     image_height = image_height < 1 ? 1 : image_height;
-    viewport_height = 2 * tan(degrees_to_radians(vfov / 2)) * -focal_length;
+    viewport_height = 2 * tan(degrees_to_radians(vfov / 2)) * focus_distance;
     viewport_width = viewport_height * (double(image_width) / image_height);
 
     camera_center = lookfrom;
@@ -33,14 +34,19 @@ private:
     v = cross(w, u);
 
     viewport_u = u * viewport_width;
-    viewport_v = v * viewport_height;
-    viewport_w = w * focal_length;
+    viewport_v = -v * viewport_height;
+    viewport_w = w * focus_distance;
 
     pixel_delta_u = viewport_u / image_width;
     pixel_delta_v = viewport_v / image_height;
     viewport_upperleft =
         camera_center - viewport_w - (viewport_u / 2) - (viewport_v / 2);
     pixel00_loc = viewport_upperleft + 0.5 * (pixel_delta_u + pixel_delta_v);
+
+    defocus_radius =
+        tan(degrees_to_radians(defocus_angle / 2)) * focus_distance;
+    defocus_u = u * defocus_radius;
+    defocus_v = v * defocus_radius;
   }
 
   color ray_color(const ray &r, hittable_list world, int bounces) {
@@ -69,9 +75,11 @@ private:
     auto offset = sample_offset();
     auto pixel_location = pixel00_loc + ((i + offset.x()) * pixel_delta_u) +
                           ((j + offset.y()) * pixel_delta_v);
-    // pixel00_loc + (i * pixel_delta_u) + (j * pixel_delta_v) + offset;
-    auto ray_direction = pixel_location - camera_center;
-    auto r = ray(camera_center, ray_direction);
+    auto ray_origin =
+        defocus_angle <= 0 ? camera_center : defocus_disk_sample();
+    auto ray_direction = pixel_location - ray_origin;
+    // std::clog << ray_origin;
+    auto r = ray(ray_origin, ray_direction);
     return r;
   }
 
@@ -79,15 +87,19 @@ private:
     return vec3(random_double() - 0.5, random_double() - 0.5, 0);
   }
 
+  vec3 defocus_disk_sample() const {
+    auto random_vec = random_in_unit_disk();
+    return camera_center + (random_vec * (defocus_u + defocus_v));
+  }
+
 public:
   double aspect_ratio = double(16) / 9;
   int image_width = 720;
-  double focal_length = 1;
+  double focus_distance = 1;
   int max_bounces = 100;
   int samples_per_pixel = 100;
-
+  double defocus_angle = 0;
   double vfov = 80;
-
   vec3 vup = vec3(0, 1, 0);
   point3 lookfrom = point3(0, 0, 0);
   point3 lookat = point3(0, 0, -1);
